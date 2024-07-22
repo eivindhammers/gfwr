@@ -1,7 +1,7 @@
 #'
 #' Function to get API dataset name for given event type
 #'
-#' @param dataset_type Type of dataset to get API dataset name for. It can be "raster",
+#' @param dataset_type Type of dataset to get API dataset name for. It can be "raster", "sar-presence",
 #'   "ENCOUNTER", "LOITERING", "FISHING", "PORT_VISIT", "GAP", "EEZ", "RFMO" or "MPA"
 #' @param ... Other arguments that would depend on the dataset type.
 #' @importFrom httr2 request
@@ -38,7 +38,10 @@ get_endpoint <- function(dataset_type,
     'LOITERING' = "public-global-loitering-events:latest",
     'FISHING' = "public-global-fishing-events:latest",
     'GAP' = "public-global-gaps-events:latest",
-    'raster' = "public-global-fishing-effort:latest"
+    'raster' = "public-global-fishing-effort:latest",
+    'sar-presence' = "public-global-sar-presence:latest"
+    #'sar-infra' = "public-fixed-infrastructure-filtered:latest",
+
   )
 
   base <- httr2::request("https://gateway.api.globalfishingwatch.org/v3/")
@@ -58,6 +61,13 @@ get_endpoint <- function(dataset_type,
       httr2::req_url_query(!!!args)
 
   } else if (dataset_type == 'raster') {
+
+    args <- c(`datasets[0]` = dataset, args)
+    endpoint <- base %>%
+      httr2::req_url_path_append('4wings/report') %>%
+      httr2::req_url_query(!!!args)
+
+  } else if (dataset_type == 'sar-presence') {
 
     args <- c(`datasets[0]` = dataset, args)
     endpoint <- base %>%

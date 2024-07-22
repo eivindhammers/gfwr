@@ -7,7 +7,7 @@
 get_endpoint(dataset_type, ...)
 }
 \arguments{
-\item{dataset_type}{Type of dataset to get API dataset name for. It can be "raster",
+\item{dataset_type}{Type of dataset to get API dataset name for. It can be "raster", "sar-presence",
 "ENCOUNTER", "LOITERING", "FISHING", "PORT_VISIT", "GAP", "EEZ", "RFMO" or "MPA"}
 
 \item{...}{Other arguments that would depend on the dataset type.}
@@ -15,4 +15,7 @@ get_endpoint(dataset_type, ...)
 \description{
 Function to get API dataset name for given event type
 }
+\keyword{"public-fixed-infrastructure-filtered:latest",}
+\keyword{=}
 \keyword{internal}
+\keyword{sar-infra'}

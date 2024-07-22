@@ -1,5 +1,6 @@
 #' Base function to get raster from API and convert response to data frame
 #'
+#' @param data "AIS" for AIS-based fishing effort or "SAR" for SAR vessel presence
 #' @param spatial_resolution raster spatial resolution. Can be "LOW" = 0.1 degree
 #'  or "HIGH" = 0.01 degree
 #' @param temporal_resolution raster temporal resolution. Can be 'HOURLY',
@@ -54,7 +55,22 @@
 #'             key = gfw_auth(),
 #'             print_request = TRUE)
 #' }
-get_raster <- function(spatial_resolution = NULL,
+#' # sar-presence
+#' area <- sf::st_bbox(c(xmin = -79, xmax = -76, ymin = 1, ymax = 8), crs = 4326) |>
+#'   sf::st_as_sfc() |>
+#'   sf::st_as_sf()
+#' gfw_dat <- get_raster(data = "SAR",
+#'                       spatial_resolution = 'LOW',
+#'                       temporal_resolution = 'YEARLY',
+#'                       group_by = 'GEARTYPE',
+#'                       start_date = '2021-01-01',
+#'                       end_date = '2022-01-01',
+#'                       region = area,
+#'                       region_source = 'USER_SHAPEFILE',
+#'                       #region_source = 'USER_JSON',
+#'                       key = gfw_auth())
+get_raster <- function(data = "AIS",
+                       spatial_resolution = NULL,
                        temporal_resolution = NULL,
                        group_by = NULL,
                        filter_by = NULL,
@@ -65,9 +81,12 @@ get_raster <- function(spatial_resolution = NULL,
                        key = gfw_auth(),
                        print_request = FALSE) {
   date_range <- paste(start_date, end_date, sep = ",")
+if (data == "AIS") dataset_type = "raster"
+if (data == "SAR") dataset_type = "sar-presence"
+
   # Endpoint
   endpoint <- get_endpoint(
-    dataset_type = "raster",
+    dataset_type = dataset_type,
     `spatial-resolution` = spatial_resolution,
     `temporal-resolution` = temporal_resolution,
     `filters[0]` = filter_by,
@@ -90,7 +109,11 @@ if (is.null(region_source)) stop("region_source and region params are required")
     if (length(region) > 1) stop("only 1 RFMO region must be provided")
     region <- rjson::toJSON(list(region = list(dataset = 'public-rfmo',
                                               id = region)))
-  } else if (region_source == 'USER_SHAPEFILE') {
+  } else if (region_source == "USER_JSON") {
+    warning('Please note that "USER_JSON" has been renamed to "USER_SHAPEFILE" for clarity')
+    region_source <- "USER_SHAPEFILE"
+  }
+  if (region_source == 'USER_SHAPEFILE') {
     if (methods::is(region, 'sf') & any(base::class(sf::st_geometry(region)) %in% c("sfc_POLYGON","sfc_MULTIPOLYGON"))
                  ) {
       region <- sf_to_geojson(region, endpoint = 'raster')

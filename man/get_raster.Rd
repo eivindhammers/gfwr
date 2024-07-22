@@ -5,6 +5,7 @@
 \title{Base function to get raster from API and convert response to data frame}
 \usage{
 get_raster(
+  data = "AIS",
   spatial_resolution = NULL,
   temporal_resolution = NULL,
   group_by = NULL,
@@ -18,6 +19,8 @@ get_raster(
 )
 }
 \arguments{
+\item{data}{"AIS" for AIS-based fishing effort or "SAR" for SAR vessel presence}
+
 \item{spatial_resolution}{raster spatial resolution. Can be "LOW" = 0.1 degree
 or "HIGH" = 0.01 degree}
 
@@ -72,4 +75,18 @@ get_raster(spatial_resolution = 'LOW',
             key = gfw_auth(),
             print_request = TRUE)
 }
+# sar-presence
+area <- sf::st_bbox(c(xmin = -79, xmax = -76, ymin = 1, ymax = 8), crs = 4326) |>
+  sf::st_as_sfc() |>
+  sf::st_as_sf()
+gfw_dat <- get_raster(data = "SAR",
+                      spatial_resolution = 'LOW',
+                      temporal_resolution = 'YEARLY',
+                      group_by = 'GEARTYPE',
+                      start_date = '2021-01-01',
+                      end_date = '2022-01-01',
+                      region = area,
+                      region_source = 'USER_SHAPEFILE',
+                      #region_source = 'USER_JSON',
+                      key = gfw_auth())
 }
