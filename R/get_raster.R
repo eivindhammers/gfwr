@@ -101,27 +101,27 @@ if (is.null(region_source)) stop("region_source and region params are required")
     if (length(region) > 1) stop("only 1 MPA region must be provided")
     region <- rjson::toJSON(list(region = list(dataset = 'public-mpa-all',
                                              id = region)))
-  } else if (region_source == 'EEZ' & is.numeric(region)) {
+  }
+  if (region_source == 'EEZ' & is.numeric(region)) {
     if (length(region) > 1) stop("only 1 EEZ region must be provided")
     region <- rjson::toJSON(list(region = list(dataset = 'public-eez-areas',
                                              id = region)))
-  } else if (region_source == 'RFMO' & is.character(region)) {
+  }
+  if (region_source == 'RFMO' & is.character(region)) {
     if (length(region) > 1) stop("only 1 RFMO region must be provided")
     region <- rjson::toJSON(list(region = list(dataset = 'public-rfmo',
                                               id = region)))
-  } else if (region_source == "USER_JSON") {
+  }
+  if (region_source == "USER_JSON") {
     warning('Please note that "USER_JSON" has been renamed to "USER_SHAPEFILE" for clarity')
     region_source <- "USER_SHAPEFILE"
   }
   if (region_source == 'USER_SHAPEFILE') {
-    if (methods::is(region, 'sf') & any(base::class(sf::st_geometry(region)) %in% c("sfc_POLYGON","sfc_MULTIPOLYGON"))
-                 ) {
+    if (methods::is(region, 'sf') & any(base::class(sf::st_geometry(region)) %in% c("sfc_POLYGON","sfc_MULTIPOLYGON"))) {
       region <- sf_to_geojson(region, endpoint = 'raster')
     } else {
       stop('custom region is not an sf polygon')
     }
-  } else {
-    stop('region source and region format do not match')
   }
 
   # API call
